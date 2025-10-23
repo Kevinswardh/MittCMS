@@ -29,7 +29,7 @@ jobs:
 
       # KORRIGERING 1: Publicera till en tydlig mapp i arbetsytan. Detta skapar en ren artefakt.
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{github.workspace}}/publish_output 
+        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{github.workspace}}/publish_output 
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -67,5 +67,6 @@ jobs:
         with:
           app-name: 'MittCMS-Umbraco'
           slot-name: 'Production'
-          # KORRIGERING 3: Återställ sökvägen. Nu har vi bekräftat att det INTE finns någon 'MittCMS'-mapp i paketet.
-          package: ${{github.workspace}}/deploy_package
+          # KORRIGERING 3: PEKAR IN I MAPPEN.
+          # Detta säkerställer att innehållet i din publicerade 'MittCMS'-mapp hamnar i App Service-roten.
+          package: ${{github.workspace}}/deploy_package/MittCMS 
