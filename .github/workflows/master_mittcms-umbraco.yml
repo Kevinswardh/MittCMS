@@ -67,6 +67,6 @@ jobs:
         with:
           app-name: 'MittCMS-Umbraco'
           slot-name: 'Production'
-          # KORRIGERING 3: PEKAR IN I DEN YTTERSTA MAPPEN SOM SKAPAS AV ARTEFAKTEN.
-          # Vi har bekräftat att 'MittCMS' är namnet på mappen som behövs.
-          package: ${{github.workspace}}/deploy_package/MittCMS 
+          # KORRIGERING 3: PEKA IN I UNDERMAPPEN SOM OFTA SKAPAS AV ARTEFAKTEN
+          # Testa detta först. Om det misslyckas, går vi på ASPNETCORE_SUBPATH i portalen.
+          package: ${{github.workspace}}/deploy_package/MittCMS
