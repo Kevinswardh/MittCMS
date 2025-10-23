@@ -8,21 +8,25 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read
+      
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
 
-      - name: Build
+      - name: Build project
         run: dotnet build --configuration Release
 
-      - name: Publish
+      - name: Publish project
         run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{ github.workspace }}/publish_output
 
-      - name: Upload artifact
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
@@ -31,22 +35,28 @@ jobs:
   deploy:
     runs-on: windows-latest
     needs: build
+    permissions:
+      id-token: write        # ✅ Nödvändigt för OIDC-autentisering
+      contents: read
+
     steps:
-      - name: Download artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: .net-app
           path: ${{ github.workspace }}/deploy_package
 
-      # (valfritt) lista filer för att verifiera att paketet finns
-      - name: Show files
+      # Valfritt – listar filerna som laddades ner
+      - name: Show package contents
         run: |
+          echo "Följande filer finns i deploy_package:"
           dir $env:GITHUB_WORKSPACE\deploy_package
           (Get-ChildItem $env:GITHUB_WORKSPACE\deploy_package -Recurse).FullName | Out-String | Write-Host
 
-      - name: Azure login (OIDC)
+      - name: Login to Azure using OpenID Connect (OIDC)
         uses: azure/login@v2
         with:
+          auth-type: ID_TOKEN         # ✅ Viktigt för federerad inloggning
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0E31D6BD90A840B0B2E494AF11F6EAD8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DADABDA9A7144AF389D1D2FDF216FECE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CF64315B70C64B18953B1E46E4539FB4 }}
