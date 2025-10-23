@@ -67,6 +67,6 @@ jobs:
         with:
           app-name: 'MittCMS-Umbraco'
           slot-name: 'Production'
-          # KORRIGERING 3: PEKAR IN I MAPPEN.
-          # Detta säkerställer att innehållet i din publicerade 'MittCMS'-mapp hamnar i App Service-roten.
+          # KORRIGERING 3: PEKAR IN I DEN YTTERSTA MAPPEN SOM SKAPAS AV ARTEFAKTEN.
+          # Vi har bekräftat att 'MittCMS' är namnet på mappen som behövs.
           package: ${{github.workspace}}/deploy_package/MittCMS 
