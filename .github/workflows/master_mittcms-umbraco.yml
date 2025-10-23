@@ -21,12 +21,13 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          # Matchar din .NET-version
+          dotnet-version: '9.x' 
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
-      # 🛠️ KORRIGERING 1: Publicera till en tydlig mapp i arbetsytan.
+      # KORRIGERING 1: Publicera till en tydlig mapp i arbetsytan. Detta skapar en ren artefakt.
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{github.workspace}}/publish_output 
 
@@ -49,12 +50,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-          # 🛠️ KORRIGERING 2: Ladda ner artefaktens innehåll till en ny mapp
+          # KORRIGERING 2: Ladda ner artefaktens innehåll till en ny mapp
           path: ${{github.workspace}}/deploy_package
           
       - name: Login to Azure
         uses: azure/login@v2
         with:
+          # Använder dina secrets
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0E31D6BD90A840B0B2E494AF11F6EAD8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DADABDA9A7144AF389D1D2FDF216FECE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CF64315B70C64B18953B1E46E4539FB4 }}
@@ -65,5 +67,6 @@ jobs:
         with:
           app-name: 'MittCMS-Umbraco'
           slot-name: 'Production'
-          # 🛠️ KORRIGERING 3: Peka på den nedladdade mappen. Innehållet deployas som App Service-rot.
-          package: ${{github.workspace}}/deploy_package
+          # KORRIGERING 3: PEKAR IN I MAPPEN.
+          # Detta säkerställer att innehållet i din publicerade 'MittCMS'-mapp hamnar i App Service-roten.
+          package: ${{github.workspace}}/deploy_package/MittCMS 
