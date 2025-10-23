@@ -2,7 +2,8 @@ name: Build and deploy ASP.Net Core app to Azure Web App - MittCMS-Umbraco
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -10,7 +11,7 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: read
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,43 +21,44 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Build project
-        run: dotnet build --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore MittCMS/MittCMS.csproj
 
-      - name: Publish project
-        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{ github.workspace }}/publish_output
+      - name: Build project
+        run: dotnet build MittCMS/MittCMS.csproj --configuration Release --no-restore
+
+      - name: Publish app
+        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{ github.workspace }}/myapp
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{ github.workspace }}/publish_output
+          name: umbraco-app
+          path: ${{ github.workspace }}/myapp
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write        # ✅ Nödvändigt för OIDC-autentisering
+      id-token: write
       contents: read
 
     steps:
-      - name: Download build artifact
+      - name: Download artifact from build
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: umbraco-app
           path: ${{ github.workspace }}/deploy_package
 
-      # Valfritt – listar filerna som laddades ner
-      - name: Show package contents
+      - name: Show downloaded files (debug)
         run: |
-          echo "Följande filer finns i deploy_package:"
+          echo "📦 Filer i deploy_package:"
           dir $env:GITHUB_WORKSPACE\deploy_package
-          (Get-ChildItem $env:GITHUB_WORKSPACE\deploy_package -Recurse).FullName | Out-String | Write-Host
 
-      - name: Login to Azure using OpenID Connect (OIDC)
+      - name: Login to Azure (Managed Identity)
         uses: azure/login@v2
         with:
-          auth-type: ID_TOKEN         # ✅ Viktigt för federerad inloggning
+          auth-type: IDENTITY                 # ✅ Korrigerad: använd IDENTITY, inte ID_TOKEN
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0E31D6BD90A840B0B2E494AF11F6EAD8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DADABDA9A7144AF389D1D2FDF216FECE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CF64315B70C64B18953B1E46E4539FB4 }}
