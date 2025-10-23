@@ -1,72 +1,58 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - MittCMS-Umbraco
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: read #This is required for actions/checkout
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          # Matchar din .NET-version
-          dotnet-version: '9.x' 
+          dotnet-version: '9.x'
 
-      - name: Build with dotnet
+      - name: Build
         run: dotnet build --configuration Release
 
-      # KORRIGERING 1: Publicera till en tydlig mapp i arbetsytan. Detta skapar en ren artefakt.
-      - name: dotnet publish
-        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{github.workspace}}/publish_output 
+      - name: Publish
+        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{ github.workspace }}/publish_output
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          # Peka på den nya publiceringsmappen.
-          path: ${{github.workspace}}/publish_output 
+          path: ${{ github.workspace }}/publish_output
 
   deploy:
     runs-on: windows-latest
     needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-          # KORRIGERING 2: Ladda ner artefaktens innehåll till en ny mapp
-          path: ${{github.workspace}}/deploy_package
-          
-      - name: Login to Azure
+          path: ${{ github.workspace }}/deploy_package
+
+      # (valfritt) lista filer för att verifiera att paketet finns
+      - name: Show files
+        run: |
+          dir $env:GITHUB_WORKSPACE\deploy_package
+          (Get-ChildItem $env:GITHUB_WORKSPACE\deploy_package -Recurse).FullName | Out-String | Write-Host
+
+      - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
-          # Använder dina secrets
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0E31D6BD90A840B0B2E494AF11F6EAD8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DADABDA9A7144AF389D1D2FDF216FECE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CF64315B70C64B18953B1E46E4539FB4 }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'MittCMS-Umbraco'
-          slot-name: 'Production'
-          # KORRIGERING 3: PEKA IN I UNDERMAPPEN SOM OFTA SKAPAS AV ARTEFAKTEN
-          # Testa detta först. Om det misslyckas, går vi på ASPNETCORE_SUBPATH i portalen.
-          package: ${{github.workspace}}/deploy_package/MittCMS
+          package: ${{ github.workspace }}/deploy_package
