@@ -24,13 +24,17 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore MittCMS/MittCMS.csproj
 
       - name: Build project
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build MittCMS/MittCMS.csproj --configuration Release --no-restore
 
+      # ✅ Publicera till en separat mapp, inte till wwwroot
       - name: Publish project
-        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{ github.workspace }}/publish_output
+        run: dotnet publish MittCMS/MittCMS.csproj -c Release -o ${{ github.workspace }}/publish_output --no-self-contained
+
+      - name: Verify published files
+        run: dir ${{ github.workspace }}/publish_output
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
@@ -52,13 +56,13 @@ jobs:
           name: published_app
           path: ${{ github.workspace }}/deploy_package
 
-      - name: List deployment files (debug step)
+      - name: Verify deployment files
         run: dir ${{ github.workspace }}/deploy_package
 
+      # ✅ Deploy direkt till rotmappen i App Service
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'MittCMS-Umbraco'
-          slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/deploy_package
