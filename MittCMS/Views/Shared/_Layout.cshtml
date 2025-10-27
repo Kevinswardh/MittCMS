@@ -1,0 +1,22 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>@Model.Value("pageTitle")</title>
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+    @Html.Partial("_Header")
+
+    <main>
+        @RenderBody()
+    </main>
+
+    @Html.Partial("_Footer")
+
+</body>
+</html>
