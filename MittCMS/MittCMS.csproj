@@ -4,6 +4,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<CompressionEnabled>false</CompressionEnabled>
+
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	</PropertyGroup>
 
 	<ItemGroup>
