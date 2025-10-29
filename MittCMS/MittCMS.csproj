@@ -4,8 +4,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<CompressionEnabled>false</CompressionEnabled>
-
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,7 +20,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="Views\**\*.cshtml" CopyToPublishDirectory="Always" />
+		<Content Update="Views/**/*.cshtml" CopyToPublishDirectory="Always" />
 	</ItemGroup>
 
 </Project>
