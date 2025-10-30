@@ -3,7 +3,9 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<EnableDefaultContentItems>true</EnableDefaultContentItems>
+
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+
 		<CompressionEnabled>false</CompressionEnabled>
 	</PropertyGroup>
 
@@ -12,4 +14,15 @@
 		<PackageReference Include="Azure.Identity" Version="1.17.0" />
 		<PackageReference Include="Umbraco.Cms" Version="16.3.2" />
 	</ItemGroup>
+
+	<ItemGroup>
+
+		<Content Include="Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+
+		<Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="appsettings.json" CopyToPublishDirectory="PreserveNewest" />
+		<Content Include="appsettings.*.json" CopyToPublishDirectory="PreserveNewest" />
+
+	</ItemGroup>
+
 </Project>
